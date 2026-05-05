@@ -7,159 +7,152 @@ namespace Fly\Http;
 /**
  * Native HTTP Response abstraction.
  *
- * Manages status code, headers, and body content.
- * Emits the response using native PHP functions.
+ * Phase 2: Full HTTP engine with HTML, file downloads,
+ * streamed responses, cookies, and comprehensive status codes.
  */
 class Response
 {
-    /**
-     * HTTP status text map.
-     */
     protected const array STATUS_TEXTS = [
-        200 => 'OK',
-        201 => 'Created',
-        204 => 'No Content',
-        301 => 'Moved Permanently',
-        302 => 'Found',
-        304 => 'Not Modified',
-        400 => 'Bad Request',
-        401 => 'Unauthorized',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        500 => 'Internal Server Error',
+        100 => 'Continue', 101 => 'Switching Protocols',
+        200 => 'OK', 201 => 'Created', 202 => 'Accepted', 204 => 'No Content',
+        301 => 'Moved Permanently', 302 => 'Found', 303 => 'See Other',
+        304 => 'Not Modified', 307 => 'Temporary Redirect', 308 => 'Permanent Redirect',
+        400 => 'Bad Request', 401 => 'Unauthorized', 403 => 'Forbidden',
+        404 => 'Not Found', 405 => 'Method Not Allowed', 409 => 'Conflict',
+        422 => 'Unprocessable Content', 429 => 'Too Many Requests',
+        500 => 'Internal Server Error', 502 => 'Bad Gateway', 503 => 'Service Unavailable',
     ];
 
-    /**
-     * @param array<string, string> $headers
-     */
+    /** @var list<array{name: string, value: string, options: array}> */
+    protected array $cookies = [];
+
+    /** @param array<string, string> $headers */
     public function __construct(
         protected string $content = '',
         protected int    $statusCode = 200,
         protected array  $headers = [],
     ) {}
 
-    // ----------------------------------------------------------------
-    // Factory Methods
-    // ----------------------------------------------------------------
+    // --- Factory Methods ---
 
-    /**
-     * Create a plain text response.
-     */
     public static function make(string $content = '', int $status = 200, array $headers = []): static
     {
         return new static($content, $status, $headers);
     }
 
-    /**
-     * Create a JSON response.
-     */
+    public static function html(string $html, int $status = 200, array $headers = []): static
+    {
+        $headers['Content-Type'] = 'text/html; charset=UTF-8';
+        return new static($html, $status, $headers);
+    }
+
     public static function json(mixed $data, int $status = 200, array $headers = []): static
     {
         $headers['Content-Type'] = 'application/json';
-
         return new static(
             json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-            $status,
-            $headers,
+            $status, $headers,
         );
     }
 
-    /**
-     * Create a redirect response.
-     */
     public static function redirect(string $url, int $status = 302): static
     {
         return new static('', $status, ['Location' => $url]);
     }
 
-    // ----------------------------------------------------------------
-    // Mutators
-    // ----------------------------------------------------------------
-
-    /**
-     * Set the response content.
-     */
-    public function setContent(string $content): static
+    public static function download(string $filePath, ?string $filename = null): static
     {
-        $this->content = $content;
+        if (!file_exists($filePath)) {
+            return new static('File not found.', 404);
+        }
+        $filename = $filename ?? basename($filePath);
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($filePath) ?: 'application/octet-stream';
+        return new static(
+            (string) file_get_contents($filePath), 200, [
+                'Content-Type'        => $mime,
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Content-Length'      => (string) filesize($filePath),
+            ],
+        );
+    }
+
+    public static function stream(callable $callback, int $status = 200, array $headers = []): StreamedResponse
+    {
+        return new StreamedResponse($callback, $status, $headers);
+    }
+
+    public static function noContent(int $status = 204): static
+    {
+        return new static('', $status);
+    }
+
+    // --- Mutators ---
+
+    public function setContent(string $content): static { $this->content = $content; return $this; }
+    public function setStatusCode(int $code): static { $this->statusCode = $code; return $this; }
+    public function setHeader(string $name, string $value): static { $this->headers[$name] = $value; return $this; }
+    public function removeHeader(string $name): static { unset($this->headers[$name]); return $this; }
+
+    public function withCookie(
+        string $name, string $value = '', int $minutes = 0,
+        string $path = '/', string $domain = '', bool $secure = false,
+        bool $httpOnly = true, string $sameSite = 'Lax',
+    ): static {
+        $this->cookies[] = [
+            'name' => $name, 'value' => $value,
+            'options' => [
+                'expires' => $minutes > 0 ? time() + ($minutes * 60) : 0,
+                'path' => $path, 'domain' => $domain, 'secure' => $secure,
+                'httponly' => $httpOnly, 'samesite' => $sameSite,
+            ],
+        ];
         return $this;
     }
 
-    /**
-     * Set the HTTP status code.
-     */
-    public function setStatusCode(int $code): static
+    public function withoutCookie(string $name, string $path = '/'): static
     {
-        $this->statusCode = $code;
-        return $this;
+        return $this->withCookie($name, '', minutes: -525600, path: $path);
     }
 
-    /**
-     * Set a response header.
-     */
-    public function setHeader(string $name, string $value): static
-    {
-        $this->headers[$name] = $value;
-        return $this;
-    }
+    // --- Accessors ---
 
-    // ----------------------------------------------------------------
-    // Accessors
-    // ----------------------------------------------------------------
+    public function getContent(): string { return $this->content; }
+    public function getStatusCode(): int { return $this->statusCode; }
+    public function getStatusText(): string { return static::STATUS_TEXTS[$this->statusCode] ?? 'Unknown'; }
+    /** @return array<string, string> */
+    public function getHeaders(): array { return $this->headers; }
 
-    public function getContent(): string
-    {
-        return $this->content;
-    }
+    public function isSuccessful(): bool { return $this->statusCode >= 200 && $this->statusCode < 300; }
+    public function isRedirect(): bool { return $this->statusCode >= 300 && $this->statusCode < 400; }
+    public function isClientError(): bool { return $this->statusCode >= 400 && $this->statusCode < 500; }
+    public function isServerError(): bool { return $this->statusCode >= 500; }
 
-    public function getStatusCode(): int
-    {
-        return $this->statusCode;
-    }
+    // --- Emitter ---
 
-    /**
-     * @return array<string, string>
-     */
-    public function getHeaders(): array
-    {
-        return $this->headers;
-    }
-
-    // ----------------------------------------------------------------
-    // Emitter
-    // ----------------------------------------------------------------
-
-    /**
-     * Send the response to the browser.
-     *
-     * Uses native header(), http_response_code(), and echo.
-     */
     public function send(): void
     {
         $this->sendHeaders();
+        $this->sendCookies();
         $this->sendContent();
     }
 
-    /**
-     * Send HTTP headers.
-     */
     protected function sendHeaders(): void
     {
-        if (headers_sent()) {
-            return;
-        }
-
+        if (headers_sent()) { return; }
         http_response_code($this->statusCode);
-
         foreach ($this->headers as $name => $value) {
             header("{$name}: {$value}", true);
         }
     }
 
-    /**
-     * Send the response body.
-     */
+    protected function sendCookies(): void
+    {
+        if (headers_sent()) { return; }
+        foreach ($this->cookies as $cookie) {
+            setcookie($cookie['name'], $cookie['value'], $cookie['options']);
+        }
+    }
+
     protected function sendContent(): void
     {
         echo $this->content;
