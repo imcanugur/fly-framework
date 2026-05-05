@@ -21,7 +21,7 @@ $app = new Application($basePath);
 // Register core singletons
 $app->singleton(Router::class, fn() => new Router());
 
-// Register service providers
-$app->register(\App\Providers\AppServiceProvider::class);
+// Bootstrap configuration and providers
+$app->bootstrap();
 
 return $app;

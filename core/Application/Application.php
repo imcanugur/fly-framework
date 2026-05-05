@@ -61,6 +61,39 @@ class Application extends Container
     }
 
     /**
+     * Bootstrap the application (Config, Env, Providers).
+     */
+    public function bootstrap(): void
+    {
+        if ($this->bootstrapped) {
+            return;
+        }
+
+        // 1. Load Environment Variables
+        \Fly\Support\Env::load($this->basePath('.env'));
+
+        // 2. Load Configuration
+        $config = new \Fly\Config\Repository();
+        $cacheFile = $this->bootstrapPath('cache/config.php');
+
+        if (file_exists($cacheFile)) {
+            $config->setAll(require $cacheFile);
+        } else {
+            $config->loadFromDir($this->configPath());
+        }
+
+        $this->instance('config', $config);
+
+        // 3. Register Configured Providers
+        $providers = $config->get('app.providers', []);
+        foreach ($providers as $provider) {
+            $this->register($provider);
+        }
+
+        $this->bootstrapped = true;
+    }
+
+    /**
      * Register a service provider with the application.
      *
      * @param \Fly\Support\ServiceProvider|class-string<\Fly\Support\ServiceProvider> $provider
@@ -83,17 +116,11 @@ class Application extends Container
      */
     public function boot(): void
     {
-        if ($this->bootstrapped) {
-            return;
-        }
-
         foreach ($this->providers as $provider) {
             if (method_exists($provider, 'boot')) {
                 $provider->boot();
             }
         }
-
-        $this->bootstrapped = true;
     }
 
     /**
@@ -130,6 +157,14 @@ class Application extends Container
     public function appPath(string $path = ''): string
     {
         return $this->basePath('app' . ($path !== '' ? '/' . ltrim($path, '/') : ''));
+    }
+
+    /**
+     * Get the path to the /bootstrap directory.
+     */
+    public function bootstrapPath(string $path = ''): string
+    {
+        return $this->basePath('bootstrap' . ($path !== '' ? '/' . ltrim($path, '/') : ''));
     }
 
     /**

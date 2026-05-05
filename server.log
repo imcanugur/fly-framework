@@ -1,5 +1,0 @@
-[Tue May  5 16:16:02 2026] PHP 8.5.3 Development Server (http://localhost:8086) started
-[Tue May  5 16:16:03 2026] 127.0.0.1:37070 Accepted
-[Tue May  5 16:16:03 2026] TerminableMiddleware: Request to /middleware-test completed with status 200.
-[Tue May  5 16:16:03 2026] 127.0.0.1:37070 [200]: GET /middleware-test
-[Tue May  5 16:16:03 2026] 127.0.0.1:37070 Closing

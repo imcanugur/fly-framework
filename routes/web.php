@@ -57,3 +57,12 @@ Route::get('/welcome', function () {
 Route::get('/middleware-test', function (Request $request) {
     return Response::json(['message' => 'Middleware passed!']);
 })->middleware(\App\Middleware\ExampleMiddleware::class);
+
+// Config Demo
+Route::get('/config-test', function () {
+    return Response::json([
+        'app_name' => config('app.name'),
+        'app_env'  => env('APP_ENV'),
+        'debug'    => config('app.debug'),
+    ]);
+});

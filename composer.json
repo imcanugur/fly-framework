@@ -15,7 +15,10 @@
         "psr-4": {
             "Fly\\": "core/",
             "App\\": "app/"
-        }
+        },
+        "files": [
+            "core/Support/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -35,3 +35,4 @@ composer.lock
 # Build
 /build/
 /docs
+*.log
