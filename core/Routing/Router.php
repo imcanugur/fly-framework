@@ -7,6 +7,7 @@ namespace Fly\Routing;
 use Closure;
 use Fly\Http\Request;
 use Fly\Http\Response;
+use Fly\Pipeline\Pipeline;
 
 /**
  * The core routing engine.
@@ -42,6 +43,11 @@ class Router
      * @var array<string, list<string>>
      */
     protected array $uriMethodMap = [];
+
+    /**
+     * The currently dispatched route.
+     */
+    protected ?RouteEntry $currentRoute = null;
 
     public function __construct()
     {
@@ -130,7 +136,8 @@ class Router
             foreach ($this->routes[$method] as $route) {
                 $params = [];
                 if ($route->matches($path, $params)) {
-                    return $this->callAction($route, $params, $request);
+                    $this->currentRoute = $route;
+                    return $this->runRouteWithinStack($route, $params, $request);
                 }
             }
         }
@@ -216,6 +223,14 @@ class Router
             $count += count($entries);
         }
         return $count;
+    }
+
+    /**
+     * Get the currently matched route.
+     */
+    public function current(): ?RouteEntry
+    {
+        return $this->currentRoute;
     }
 
     // ----------------------------------------------------------------
@@ -315,6 +330,19 @@ class Router
         $this->uriMethodMap[$uri][] = $method;
 
         return $entry;
+    }
+
+    /**
+     * Run the matched route through its middleware pipeline.
+     */
+    protected function runRouteWithinStack(RouteEntry $route, array $params, Request $request): Response
+    {
+        $middleware = $route->getMiddleware();
+
+        return (new Pipeline(\Fly\Container\Container::getInstance()))
+            ->send($request)
+            ->through($middleware)
+            ->then(fn (Request $req) => $this->callAction($route, $params, $req));
     }
 
     /**

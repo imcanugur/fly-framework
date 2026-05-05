@@ -52,3 +52,8 @@ Route::group(['prefix' => '/api'], function () {
 Route::get('/welcome', function () {
     return Response::html('<h1>Welcome to Fly Framework</h1><p>Beautiful, Modern & Opinionated</p>');
 })->name('welcome');
+
+// Middleware Demo
+Route::get('/middleware-test', function (Request $request) {
+    return Response::json(['message' => 'Middleware passed!']);
+})->middleware(\App\Middleware\ExampleMiddleware::class);
