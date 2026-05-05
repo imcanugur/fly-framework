@@ -30,7 +30,7 @@ class Application extends Container
     /**
      * All registered service providers.
      *
-     * @var array<int, object>
+     * @var array<int, \Fly\Support\ServiceProvider>
      */
     protected array $providers = [];
 
@@ -61,12 +61,18 @@ class Application extends Container
     }
 
     /**
-     * Register a service provider.
+     * Register a service provider with the application.
+     *
+     * @param \Fly\Support\ServiceProvider|class-string<\Fly\Support\ServiceProvider> $provider
      */
-    public function register(object $provider): void
+    public function register(string|object $provider): void
     {
+        if (is_string($provider)) {
+            $provider = new $provider($this);
+        }
+
         if (method_exists($provider, 'register')) {
-            $provider->register($this);
+            $provider->register();
         }
 
         $this->providers[] = $provider;
@@ -83,7 +89,7 @@ class Application extends Container
 
         foreach ($this->providers as $provider) {
             if (method_exists($provider, 'boot')) {
-                $provider->boot($this);
+                $provider->boot();
             }
         }
 

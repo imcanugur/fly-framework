@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 /**
  * Fly Framework - Web Routes
- *
- * Define your application routes here.
  */
 
 use Fly\Routing\Route;
@@ -15,23 +13,9 @@ use Fly\Http\Response;
 // Homepage
 Route::get('/', function () {
     return 'Fly Framework';
-});
+})->name('home');
 
-// JSON response demo
-Route::get('/api/status', function () {
-    return Response::json([
-        'framework' => 'Fly',
-        'version'   => '0.1.0',
-        'status'    => 'running',
-    ]);
-});
-
-// HTML response demo
-Route::get('/welcome', function () {
-    return Response::html('<h1>Welcome to Fly Framework</h1><p>Beautiful, Modern & Opinionated</p>');
-});
-
-// Dynamic route + request inspection
+// Named route with constraint
 Route::get('/users/{id}', function (Request $request, string $id) {
     return Response::json([
         'user_id' => $id,
@@ -39,12 +23,32 @@ Route::get('/users/{id}', function (Request $request, string $id) {
         'path'    => $request->path(),
         'ip'      => $request->ip(),
     ]);
+})->name('users.show')->whereNumber('id');
+
+// Optional parameter
+Route::get('/posts/{slug}/{page?}', function (Request $request, string $slug, string $page = '1') {
+    return Response::json(['slug' => $slug, 'page' => (int) $page]);
+})->name('posts.show');
+
+// Route group with prefix
+Route::group(['prefix' => '/api'], function () {
+    Route::get('/status', function () {
+        return Response::json([
+            'framework' => 'Fly',
+            'version'   => '0.1.0',
+            'status'    => 'running',
+        ]);
+    })->name('api.status');
+
+    Route::post('/echo', function (Request $request) {
+        return Response::json([
+            'received' => $request->all(),
+            'is_json'  => $request->isJson(),
+        ]);
+    })->name('api.echo');
 });
 
-// POST endpoint demo
-Route::post('/api/echo', function (Request $request) {
-    return Response::json([
-        'received' => $request->all(),
-        'is_json'  => $request->isJson(),
-    ]);
-});
+// HTML response
+Route::get('/welcome', function () {
+    return Response::html('<h1>Welcome to Fly Framework</h1><p>Beautiful, Modern & Opinionated</p>');
+})->name('welcome');
