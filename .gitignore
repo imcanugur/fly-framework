@@ -36,3 +36,4 @@ composer.lock
 /build/
 /docs
 *.log
+*.json

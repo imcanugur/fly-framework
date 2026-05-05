@@ -36,6 +36,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'providers' => [
+        \Fly\Database\DatabaseServiceProvider::class,
         \App\Providers\AppServiceProvider::class,
     ],
 

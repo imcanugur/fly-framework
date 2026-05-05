@@ -42,3 +42,14 @@ if (!function_exists('config')) {
         return $repository->get($key, $default);
     }
 }
+
+if (!function_exists('database_path')) {
+    /**
+     * Get the path to the database directory.
+     */
+    function database_path(string $path = ''): string
+    {
+        $app = \Fly\Container\Container::getInstance()->make('app');
+        return $app->basePath('database' . ($path ? '/' . ltrim($path, '/') : ''));
+    }
+}

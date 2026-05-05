@@ -21,6 +21,9 @@ $app = new Application($basePath);
 // Register core singletons
 $app->singleton(Router::class, fn() => new Router());
 
+// Set Facade root application
+\Fly\Support\Facades\Facade::setFacadeApplication($app);
+
 // Bootstrap configuration and providers
 $app->bootstrap();
 

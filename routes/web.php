@@ -66,3 +66,24 @@ Route::get('/config-test', function () {
         'debug'    => config('app.debug'),
     ]);
 });
+
+// Database Demo
+Route::get('/db-test', function () {
+    // Create Table
+    \Fly\Support\Facades\DB::statement('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT)');
+    
+    // Insert Record
+    \Fly\Support\Facades\DB::table('users')->insert([
+        'id'    => 1,
+        'name'  => 'John Doe',
+        'email' => 'john@example.com'
+    ]);
+    
+    // Fetch Record
+    $users = \Fly\Support\Facades\DB::table('users')->where('name', 'John Doe')->get();
+    
+    // Cleanup
+    \Fly\Support\Facades\DB::statement('DROP TABLE users');
+    
+    return Response::json(['users' => $users]);
+});
