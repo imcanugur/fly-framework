@@ -17,9 +17,6 @@ require __DIR__ . '/../vendor/autoload.php';
 // 2. Bootstrap the application
 $app = require __DIR__ . '/../bootstrap/app.php';
 
-// 3. Load route definitions
-require __DIR__ . '/../routes/web.php';
-
-// 4. Create the HTTP Kernel and handle the request
+// 3. Create the HTTP Kernel and handle the request
 $kernel = new Fly\Kernel\HttpKernel($app);
 $kernel->handle();

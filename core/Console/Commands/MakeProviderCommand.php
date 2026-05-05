@@ -7,25 +7,25 @@ namespace Fly\Console\Commands;
 use Fly\Console\GeneratorCommand;
 use Fly\Application\Application;
 
-class MakeControllerCommand extends GeneratorCommand
+class MakeProviderCommand extends GeneratorCommand
 {
-    protected string $name = 'make:controller';
-    protected string $description = 'Create a new controller class';
+    protected string $name = 'make:provider';
+    protected string $description = 'Create a new service provider class';
 
     public function __construct(protected readonly Application $app) {}
 
     protected function getStubName(): string
     {
-        return 'controller.stub';
+        return 'provider.stub';
     }
 
     protected function getDefaultNamespace(): string
     {
-        return 'App\\Http\\Controllers';
+        return 'App\\Providers';
     }
 
     protected function getPath(string $name): string
     {
-        return $this->app->appPath('Http/Controllers/' . str_replace('\\', '/', $name) . '.php');
+        return $this->app->appPath('Providers/' . str_replace('\\', '/', $name) . '.php');
     }
 }

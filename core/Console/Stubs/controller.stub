@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Fly\Http\Request;
+use Fly\Http\Response;
+
+class {{ class }}
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request): Response
+    {
+        // return Response::json(['message' => 'Hello World']);
+    }
+}

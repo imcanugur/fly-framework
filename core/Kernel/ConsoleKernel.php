@@ -24,6 +24,9 @@ class ConsoleKernel
         'make:middleware' => \Fly\Console\Commands\MakeMiddlewareCommand::class,
         'make:model'      => \Fly\Console\Commands\MakeModelCommand::class,
         'make:migration'  => \Fly\Console\Commands\MakeMigrationCommand::class,
+        'make:provider'   => \Fly\Console\Commands\MakeProviderCommand::class,
+        'serve'           => \Fly\Console\Commands\ServeCommand::class,
+        'route:list'      => \Fly\Console\Commands\RouteListCommand::class,
     ];
 
     public function __construct(
@@ -36,6 +39,7 @@ class ConsoleKernel
     public function handle(array $argv): int
     {
         $this->app->bootstrap();
+        $this->app->boot();
 
         $commandName = $argv[1] ?? 'list';
 

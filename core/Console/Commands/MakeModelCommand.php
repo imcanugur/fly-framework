@@ -14,21 +14,9 @@ class MakeModelCommand extends GeneratorCommand
 
     public function __construct(protected readonly Application $app) {}
 
-    protected function getStub(): string
+    protected function getStubName(): string
     {
-        return <<<EOF
-<?php
-
-declare(strict_types=1);
-
-namespace {{ namespace }};
-
-class {{ class }}
-{
-    // Phase 9 ORM Base Model will be extended here later
-}
-
-EOF;
+        return 'model.stub';
     }
 
     protected function getDefaultNamespace(): string

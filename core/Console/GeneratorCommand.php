@@ -10,9 +10,9 @@ namespace Fly\Console;
 abstract class GeneratorCommand extends Command
 {
     /**
-     * Get the stub file content for the generator.
+     * Get the name of the stub file (e.g., 'controller.stub').
      */
-    abstract protected function getStub(): string;
+    abstract protected function getStubName(): string;
 
     /**
      * Get the default namespace for the class.
@@ -55,11 +55,33 @@ abstract class GeneratorCommand extends Command
     }
 
     /**
+     * Get the physical path to the stub file.
+     */
+    protected function getStubPath(): string
+    {
+        // Allow overriding stubs via resources/stubs
+        $customPath = $this->app->basePath('resources/stubs/' . $this->getStubName());
+
+        if (file_exists($customPath)) {
+            return $customPath;
+        }
+
+        return $this->app->corePath('Console/Stubs/' . $this->getStubName());
+    }
+
+    /**
      * Build the class with the given name.
      */
     protected function buildClass(string $name): string
     {
-        $stub = $this->getStub();
+        $stubPath = $this->getStubPath();
+
+        if (!file_exists($stubPath)) {
+            $this->error("Stub file not found: {$stubPath}");
+            exit(1);
+        }
+
+        $stub = file_get_contents($stubPath);
 
         // Extract class name (without namespace path)
         $className = basename(str_replace('\\', '/', $name));

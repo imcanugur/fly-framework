@@ -25,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Boot logic like registering view components, macros, etc.
+        // Load web routes
+        $routesPath = $this->app->routesPath('web.php');
+        if (file_exists($routesPath)) {
+            require $routesPath;
+        }
     }
 }

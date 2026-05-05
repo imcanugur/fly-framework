@@ -14,27 +14,9 @@ class MakeMigrationCommand extends GeneratorCommand
 
     public function __construct(protected readonly Application $app) {}
 
-    protected function getStub(): string
+    protected function getStubName(): string
     {
-        return <<<EOF
-<?php
-
-declare(strict_types=1);
-
-class {{ class }}
-{
-    public function up(): void
-    {
-        // Schema::create('...', function (Blueprint \$table) { ... });
-    }
-
-    public function down(): void
-    {
-        // Schema::dropIfExists('...');
-    }
-}
-
-EOF;
+        return 'migration.stub';
     }
 
     protected function getDefaultNamespace(): string
