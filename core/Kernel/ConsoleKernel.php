@@ -14,6 +14,18 @@ use Fly\Application\Application;
  */
 class ConsoleKernel
 {
+    /**
+     * The built-in framework commands.
+     *
+     * @var array<string, class-string<\Fly\Console\Command>>
+     */
+    protected array $commands = [
+        'make:controller' => \Fly\Console\Commands\MakeControllerCommand::class,
+        'make:middleware' => \Fly\Console\Commands\MakeMiddlewareCommand::class,
+        'make:model'      => \Fly\Console\Commands\MakeModelCommand::class,
+        'make:migration'  => \Fly\Console\Commands\MakeMigrationCommand::class,
+    ];
+
     public function __construct(
         protected readonly Application $app,
     ) {}
@@ -23,16 +35,42 @@ class ConsoleKernel
      */
     public function handle(array $argv): int
     {
-        $this->app->boot();
+        $this->app->bootstrap();
 
-        // Phase 7 will implement full command dispatching
-        $command = $argv[1] ?? 'list';
+        $commandName = $argv[1] ?? 'list';
 
-        echo "Fly Framework v{$this->app->version()}" . PHP_EOL;
-        echo "Command: {$command}" . PHP_EOL;
-        echo "Console kernel ready. Command system coming in Phase 7." . PHP_EOL;
+        if ($commandName === 'list') {
+            $this->listCommands();
+            return 0;
+        }
 
-        return 0;
+        if (!isset($this->commands[$commandName])) {
+            echo "\033[31mCommand \"{$commandName}\" is not defined.\033[0m\n";
+            return 1;
+        }
+
+        $commandClass = $this->commands[$commandName];
+
+        /** @var \Fly\Console\Command $command */
+        $command = $this->app->make($commandClass);
+
+        return $command->execute(array_slice($argv, 2));
+    }
+
+    /**
+     * List all available commands.
+     */
+    protected function listCommands(): void
+    {
+        echo "\033[32mFly Framework\033[0m v" . $this->app->version() . "\n\n";
+        echo "\033[33mUsage:\033[0m\n  command [options] [arguments]\n\n";
+        echo "\033[33mAvailable commands:\033[0m\n";
+
+        foreach ($this->commands as $name => $class) {
+            /** @var \Fly\Console\Command $cmd */
+            $cmd = $this->app->make($class);
+            printf("  \033[32m%-20s\033[0m %s\n", $name, $cmd->getDescription());
+        }
     }
 
     /**
