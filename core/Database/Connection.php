@@ -55,6 +55,15 @@ class Connection
     }
 
     /**
+     * Run an insert statement and return the inserted ID.
+     */
+    public function insertGetId(string $query, array $bindings = []): string|false
+    {
+        $this->statement($query, $bindings);
+        return $this->pdo->lastInsertId();
+    }
+
+    /**
      * Run an update statement against the database.
      */
     public function update(string $query, array $bindings = []): int

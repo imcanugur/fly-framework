@@ -25,6 +25,7 @@ class ConsoleKernel
         'make:model'      => \Fly\Console\Commands\MakeModelCommand::class,
         'make:migration'  => \Fly\Console\Commands\MakeMigrationCommand::class,
         'make:provider'   => \Fly\Console\Commands\MakeProviderCommand::class,
+        'migrate'         => \Fly\Console\Commands\MigrateCommand::class,
         'serve'           => \Fly\Console\Commands\ServeCommand::class,
         'route:list'      => \Fly\Console\Commands\RouteListCommand::class,
     ];

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
-class {{ class }}
+use Fly\Database\ORM\Model;
+
+class {{ class }} extends Model
 {
-    // Model logic...
+    // protected string $table = '{{ class }}s';
 }

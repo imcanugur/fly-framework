@@ -105,6 +105,15 @@ class Builder
     }
 
     /**
+     * Insert a new record and get the ID.
+     */
+    public function insertGetId(array $values): string|false|int
+    {
+        $sql = $this->grammar->compileInsert($this, $values);
+        return $this->connection->insertGetId($sql, array_values($values));
+    }
+
+    /**
      * Update a record in the database.
      */
     public function update(array $values): int
