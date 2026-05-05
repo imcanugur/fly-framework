@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Fly Framework - CLI Entry Point
+ *
+ * Usage: php fly <command>
+ */
+
+// Composer autoloader
+require __DIR__ . '/vendor/autoload.php';
+
+// Bootstrap the application
+$app = require __DIR__ . '/bootstrap/app.php';
+
+// Create the Console Kernel and handle
+$kernel = new Fly\Kernel\ConsoleKernel($app);
+$status = $kernel->handle($argv);
+$kernel->terminate();
+
+exit($status);
