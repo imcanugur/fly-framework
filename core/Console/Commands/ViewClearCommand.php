@@ -21,15 +21,18 @@ class ViewClearCommand extends Command
             return 0;
         }
 
-        $files = glob($path . '/*.php');
-        
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
+        $directory = new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS);
+        $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::CHILD_FIRST);
+
+        $count = 0;
+        foreach ($iterator as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                unlink($file->getPathname());
+                $count++;
             }
         }
 
-        $this->info('Compiled views cleared successfully!');
+        $this->info("Successfully cleared {$count} compiled views!");
         
         return 0;
     }
