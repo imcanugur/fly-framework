@@ -13,8 +13,9 @@ class ViewServiceProvider extends ServiceProvider
         $this->app->singleton('view', function ($app) {
             $viewPath = $app->basePath('resources/views');
             $cachePath = $app->basePath('storage/framework/views');
+            $compiler = new Compiler();
             
-            return new Factory($viewPath, $cachePath);
+            return new Factory($viewPath, $cachePath, $compiler);
         });
     }
 

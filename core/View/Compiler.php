@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Fly\View;
 
-class Compiler
+use Fly\View\Contracts\CompilerInterface;
+
+class Compiler implements CompilerInterface
 {
     use Concerns\CompilesConditionals;
     use Concerns\CompilesLoops;
