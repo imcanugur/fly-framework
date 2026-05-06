@@ -38,6 +38,29 @@
             <p>This is ok.</p>
         @endif
 
+        @inject('config', 'config')
+        <p>Config Service Injected! App Name: {{ $config->get('app.name') }}</p>
+
+        @switch(config('app.env'))@case('local')
+                <p>Running in LOCAL mode</p>
+                @break
+            @case('production')
+                <p>Running in PRODUCTION mode</p>
+                @break
+            @default
+                <p>Running in UNKNOWN mode</p>
+        @endswitch
+
+        <h3>Feature List via Each</h3>
+        <ul>
+            @each('partials.feature', $features, 'feature')
+        </ul>
+
+        <div class="htmx-demo">
+            <button @htmx('#result') hx-get="/api/status">Click for HTMX Status</button>
+            <div id="result"></div>
+        </div>
+
         @fly
             $flyVar = 'Written in raw PHP via directive!';
             echo "<p><strong>{$flyVar}</strong></p>";

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>@yield('title', 'Fly Framework')</title>
+    @stack('styles')
 </head>
 <body>
     <header>

@@ -37,3 +37,4 @@ composer.lock
 /docs
 *.log
 *.json
+/storage/framework/views

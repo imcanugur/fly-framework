@@ -33,6 +33,8 @@ class ConsoleKernel
         'db:seed'         => \Fly\Console\Commands\DbSeedCommand::class,
         'serve'           => \Fly\Console\Commands\ServeCommand::class,
         'route:list'      => \Fly\Console\Commands\RouteListCommand::class,
+        'view:clear'      => \Fly\Console\Commands\ViewClearCommand::class,
+        'view:cache'      => \Fly\Console\Commands\ViewCacheCommand::class,
     ];
 
     public function __construct(

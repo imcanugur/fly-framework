@@ -83,6 +83,18 @@ class Factory
         return $this->evaluatePath($compiledPath, array_merge($this->shared, $data));
     }
     
+    public function precompile(string $view): void
+    {
+        $path = $this->getViewPath($view);
+        if (!file_exists($path)) return;
+        
+        $compiledPath = $this->getCompiledPath($path);
+        
+        if ($this->isExpired($path, $compiledPath)) {
+            $this->compile($path, $compiledPath);
+        }
+    }
+
     public function callComposers(View $view): void
     {
         $name = $view->getName();
@@ -380,5 +392,30 @@ class Factory
     public function directive(string $name, callable $handler): void
     {
         $this->compiler->directive($name, $handler);
+    }
+
+    public function exists(string $view): bool
+    {
+        $path = $this->getViewPath($view);
+        if (file_exists($path)) return true;
+        
+        $plainPath = $this->viewPath . '/' . str_replace('.', '/', $view) . '.php';
+        return file_exists($plainPath);
+    }
+
+    public function renderEach(string $view, iterable $data, string $iterator, string $emptyView = null): string
+    {
+        $result = '';
+        $data = is_array($data) ? $data : iterator_to_array($data);
+        
+        if (count($data) > 0) {
+            foreach ($data as $item) {
+                $result .= $this->make($view, [$iterator => $item])->render();
+            }
+        } elseif ($emptyView) {
+            $result .= $this->make($emptyView)->render();
+        }
+        
+        return $result;
     }
 }

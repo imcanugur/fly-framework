@@ -147,6 +147,8 @@ class Compiler
 
     protected function compileFly(string $expression) { return '<?php '; }
     protected function compileEndfly(string $expression) { return ' ?>'; }
+    protected function compilePhp(string $expression) { return '<?php '; }
+    protected function compileEndphp(string $expression) { return ' ?>'; }
     
     protected function compileProps(string $expression) {
         return "<?php \$attributes = \$attributes->merge($expression); extract(\$attributes->getIterator()->getArrayCopy()); ?>";
@@ -160,12 +162,54 @@ class Compiler
         return "<?php endif; ?>";
     }
 
+    // Conditionals
+    protected function compileUnless(string $expression) { return "<?php if(!($expression)): ?>"; }
+    protected function compileEndunless(string $expression) { return "<?php endif; ?>"; }
+
     protected function compileError(string $expression) {
         return "<?php if (\$errors->has($expression)): \$message = \$errors->first($expression); ?>";
     }
 
     protected function compileEnderror(string $expression) {
         return "<?php endif; ?>";
+    }
+
+    protected function compileProduction(string $expression) {
+        return "<?php if (config('app.env') === 'production'): ?>";
+    }
+    protected function compileEndproduction(string $expression) {
+        return "<?php endif; ?>";
+    }
+
+    protected function compileEnv(string $expression) {
+        return "<?php if (in_array(config('app.env'), (array) $expression)): ?>";
+    }
+    protected function compileEndenv(string $expression) {
+        return "<?php endif; ?>";
+    }
+
+    // Switch
+    protected function compileSwitch(string $expression) { return "<?php switch($expression): ?>"; }
+    protected function compileCase(string $expression) { return "<?php case $expression: ?>"; }
+    protected function compileDefault(string $expression) { return "<?php default: ?>"; }
+    protected function compileEndswitch(string $expression) { return "<?php endswitch; ?>"; }
+    protected function compileBreak(string $expression) { return $expression ? "<?php break $expression; ?>" : "<?php break; ?>"; }
+
+    // Includes
+    protected function compileIncludeIf(string $expression) {
+        return "<?php if (\$__env->exists($expression)) echo \$__env->make($expression, \Fly\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>";
+    }
+    protected function compileIncludeWhen(string $expression) {
+        preg_match('/^([^\,]+)\,\s*(.+)$/s', $expression, $matches);
+        return "<?php if ({$matches[1]}) echo \$__env->make({$matches[2]}, \Fly\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>";
+    }
+    protected function compileIncludeUnless(string $expression) {
+        preg_match('/^([^\,]+)\,\s*(.+)$/s', $expression, $matches);
+        return "<?php if (!({$matches[1]})) echo \$__env->make({$matches[2]}, \Fly\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>";
+    }
+
+    protected function compileEach(string $expression) {
+        return "<?php echo \$__env->renderEach($expression); ?>";
     }
 
     protected function compileChecked(string $expression) {
@@ -239,4 +283,30 @@ class Compiler
     protected function compileDd(string $expression) { return "<?php dd($expression); ?>"; }
     protected function compileDump(string $expression) { return "<?php dump($expression); ?>"; }
     protected function compileJson(string $expression) { return "<?php echo json_encode($expression); ?>"; }
+
+    protected function compileInject(string $expression) {
+        $segments = explode(',', $expression, 2);
+        $variable = trim($segments[0], " '\"");
+        $service = trim($segments[1]);
+        return "<?php \${$variable} = \Fly\Container\Container::getInstance()->make($service); ?>";
+    }
+
+    // Auth Stubs
+    protected function compileAuth(string $expression) { return "<?php if (function_exists('auth') && auth()->check()): ?>"; }
+    protected function compileEndauth(string $expression) { return "<?php endif; ?>"; }
+    protected function compileGuest(string $expression) { return "<?php if (!function_exists('auth') || auth()->guest()): ?>"; }
+    protected function compileEndguest(string $expression) { return "<?php endif; ?>"; }
+    protected function compileCan(string $expression) { return "<?php if (function_exists('can') && can($expression)): ?>"; }
+    protected function compileEndcan(string $expression) { return "<?php endif; ?>"; }
+
+    // Fly Asset SFC Directives
+    protected function compileJs(string $expression) { return "<?php \$__env->startPush('scripts'); ?>"; }
+    protected function compileEndjs(string $expression) { return "<?php \$__env->endPush(); ?>"; }
+    protected function compileCss(string $expression) { return "<?php \$__env->startPush('styles'); ?>"; }
+    protected function compileEndcss(string $expression) { return "<?php \$__env->endPush(); ?>"; }
+
+    // HTMX Shorthands
+    protected function compileHtmx(string $expression) {
+        return "hx-target=\"$expression\" hx-swap=\"outerHTML\"";
+    }
 }
