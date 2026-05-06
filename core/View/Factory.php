@@ -158,6 +158,13 @@ class Factory implements EngineInterface
     public function startComponent(string $view, array $data = []): void
     {
         if (ob_start()) {
+            // Check for Class-based component
+            $className = 'App\\View\\Components\\' . str_replace(' ', '', ucwords(str_replace(['.', '-'], ' ', $view)));
+            if (class_exists($className)) {
+                $component = new $className($data);
+                $data = array_merge($data, $component->data());
+            }
+
             $this->componentStack[] = ['view' => $view, 'data' => $data, 'slots' => []];
         }
     }

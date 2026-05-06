@@ -15,14 +15,89 @@ class Compiler implements CompilerInterface
 
     protected array $customDirectives = [];
 
+    protected Engine\Lexer $lexer;
+
+    public function __construct()
+    {
+        $this->lexer = new Engine\Lexer();
+    }
+
     public function compile(string $value): string
     {
-        $value = $this->compileComments($value);
-        $value = $this->compileComponents($value);
-        $value = $this->compileEchos($value);
-        $value = $this->compileStatements($value);
-        
-        return $value;
+        $tokens = $this->lexer->tokenize($value);
+        $result = '';
+
+        foreach ($tokens as $token) {
+            $result .= $this->compileToken($token);
+        }
+
+        return $result;
+    }
+
+    protected function compileToken(Engine\Token $token): string
+    {
+        return match ($token->type) {
+            Engine\Token::T_TEXT => $token->content,
+            Engine\Token::T_ECHO => $this->compileEcho($token),
+            Engine\Token::T_RAW_ECHO => $this->compileRawEcho($token),
+            Engine\Token::T_COMMENT => '',
+            Engine\Token::T_DIRECTIVE => $this->compileDirective($token),
+            Engine\Token::T_COMPONENT_SELF_CLOSING => $this->compileComponentSelf($token),
+            Engine\Token::T_COMPONENT_OPEN => $this->compileComponentOpen($token),
+            Engine\Token::T_COMPONENT_CLOSE => $this->compileComponentClose($token),
+            default => '',
+        };
+    }
+
+    protected function compileEcho(Engine\Token $token): string
+    {
+        return "<?php echo htmlspecialchars((string) ({$token->attributes[1]}), ENT_QUOTES); ?>";
+    }
+
+    protected function compileRawEcho(Engine\Token $token): string
+    {
+        return "<?php echo {$token->attributes[1]}; ?>";
+    }
+
+    protected function compileDirective(Engine\Token $token): string
+    {
+        $name = $token->attributes[1];
+        $arguments = $token->attributes[2] ?? '';
+
+        if (isset($this->customDirectives[$name])) {
+            return call_user_func($this->customDirectives[$name], $this->stripParentheses($arguments));
+        }
+
+        $method = 'compile' . ucfirst($name);
+        if (method_exists($this, $method)) {
+            return $this->{$method}($this->stripParentheses($arguments));
+        }
+
+        return $token->content;
+    }
+
+    protected function compileComponentSelf(Engine\Token $token): string
+    {
+        $component = $token->attributes[1];
+        $attributes = $this->parseAttributes($token->attributes[2]);
+        return "<?php \$__env->startComponent('components.{$component}', {$attributes}); ?>\n<?php echo \$__env->renderComponent(); ?>";
+    }
+
+    protected function compileComponentOpen(Engine\Token $token): string
+    {
+        $component = $token->attributes[1];
+        if ($component === 'slot') {
+            preg_match('/name="([^"]+)"/', $token->attributes[2], $matches);
+            return "<?php \$__env->slot('{$matches[1]}'); ?>";
+        }
+        $attributes = $this->parseAttributes($token->attributes[2]);
+        return "<?php \$__env->startComponent('components.{$component}', {$attributes}); ?>";
+    }
+
+    protected function compileComponentClose(Engine\Token $token): string
+    {
+        if ($token->attributes[1] === 'slot') return "<?php \$__env->endSlot(); ?>";
+        return "<?php echo \$__env->renderComponent(); ?>";
     }
 
     public function directive(string $name, callable $handler): void
@@ -148,6 +223,15 @@ class Compiler implements CompilerInterface
 
     protected function compileBlueprint(string $expression) {
         return "<?php \\Fly\\View\\Blueprint::validate(get_defined_vars(), $expression); ?>";
+    }
+
+    protected function compileTelemetry(string $expression) {
+        return "<?php \\Fly\\View\\Engine\\Telemetry::start($expression); ?>";
+    }
+
+    protected function compileEndtelemetry(string $expression) {
+        $arg = $expression ?: 'null';
+        return "<?php \$__telemetry = \\Fly\\View\\Engine\\Telemetry::end($arg); echo '<!-- Telemetry: ' . json_encode(\$__telemetry) . ' -->'; ?>";
     }
 
     protected function compileCsrf() { return "<?php echo '<input type=\"hidden\" name=\"_token\" value=\"'.csrf_token().'\">'; ?>"; }

@@ -7,6 +7,11 @@
         'features' => 'array',
         'isCool' => 'bool'
     ])
+
+    @telemetry('welcome-page')
+    
+    {{-- This is a high-end engineering comment that will be stripped --}}
+    
     <div @class(['welcome-container', 'is-cool' => $isCool])>
         <h2>@upper($message)</h2>
         <p class="composer-info">{{ $composer_message }}</p>
@@ -76,6 +81,7 @@
             <button type="submit">Submit</button>
         </form>
     </div>
+    @endtelemetry
 @endsection
 
 @push('scripts')
