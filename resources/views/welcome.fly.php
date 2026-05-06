@@ -4,12 +4,19 @@
 
 @section('content')
     <div @class(['welcome-container', 'is-cool' => $isCool])>
-        <h2>{{ $message }}</h2>
+        <h2>@upper($message)</h2>
+        <p class="composer-info">{{ $composer_message }}</p>
         
         <fly:alert type="success" class="mb-4">
             <f:slot name="title">Fly Native Components!</f:slot>
-            This is a component using Fly's new powerful component engine with attributes!
+            This is a component using Fly's new powerful component engine with attributes and props!
         </fly:alert>
+
+        @once('welcome-scripts')
+            @push('scripts')
+                <script>console.log('This script only appears ONCE!');</script>
+            @endpush
+        @endonce
 
         <ul>
         @foreach($features as $feature)
@@ -19,6 +26,11 @@
             </li>
         @endforeach
         </ul>
+
+        <div class="form-demo">
+            <label><input type="checkbox" @checked(true)> Already checked</label>
+            <label><input type="checkbox" @checked(false)> Not checked</label>
+        </div>
 
         @if($isCool)
             <p>This is really cool!</p>

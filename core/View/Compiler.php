@@ -148,6 +148,38 @@ class Compiler
     protected function compileFly(string $expression) { return '<?php '; }
     protected function compileEndfly(string $expression) { return ' ?>'; }
     
+    protected function compileProps(string $expression) {
+        return "<?php \$attributes = \$attributes->merge($expression); extract(\$attributes->getIterator()->getArrayCopy()); ?>";
+    }
+
+    protected function compileOnce(string $expression) {
+        return "<?php if (!\$__env->hasRenderedOnce($expression)): \$__env->markAsRenderedOnce($expression); ?>";
+    }
+
+    protected function compileEndonce(string $expression) {
+        return "<?php endif; ?>";
+    }
+
+    protected function compileError(string $expression) {
+        return "<?php if (\$errors->has($expression)): \$message = \$errors->first($expression); ?>";
+    }
+
+    protected function compileEnderror(string $expression) {
+        return "<?php endif; ?>";
+    }
+
+    protected function compileChecked(string $expression) {
+        return "<?php echo ($expression) ? 'checked=\"checked\"' : ''; ?>";
+    }
+
+    protected function compileSelected(string $expression) {
+        return "<?php echo ($expression) ? 'selected=\"selected\"' : ''; ?>";
+    }
+
+    protected function compileDisabled(string $expression) {
+        return "<?php echo ($expression) ? 'disabled=\"disabled\"' : ''; ?>";
+    }
+
     protected function compileClass(string $expression) { 
         return "<?php echo 'class=\"' . \\Fly\\View\\ComponentAttributeBag::compileClass($expression) . '\"'; ?>"; 
     }

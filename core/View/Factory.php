@@ -27,6 +27,16 @@ class Factory
     // Loops
     protected array $loopsStack = [];
 
+    // Once tracking
+    protected array $renderedOnce = [];
+
+    // Fragments
+    protected array $fragments = [];
+    protected array $fragmentStack = [];
+
+    // Composers
+    protected array $composers = [];
+
     // Data
     protected array $shared = [];
 
@@ -73,6 +83,18 @@ class Factory
         return $this->evaluatePath($compiledPath, array_merge($this->shared, $data));
     }
     
+    public function callComposers(View $view): void
+    {
+        $name = $view->getName();
+        foreach (['*', $name] as $key) {
+            if (isset($this->composers[$key])) {
+                foreach ($this->composers[$key] as $composer) {
+                    $composer($view);
+                }
+            }
+        }
+    }
+
     protected function getViewPath(string $view): string
     {
         return $this->viewPath . '/' . str_replace('.', '/', $view) . '.fly.php';
@@ -300,5 +322,63 @@ class Factory
         
         $loop = end($this->loopsStack);
         return (object) $loop;
+    }
+
+    // -------------------------------------------------------------------------
+    // Composers & Data
+    // -------------------------------------------------------------------------
+
+    public function composer(string|array $views, callable $callback): void
+    {
+        foreach ((array) $views as $view) {
+            $this->composers[$view][] = $callback;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Once
+    // -------------------------------------------------------------------------
+
+    public function hasRenderedOnce(string $id): bool
+    {
+        return isset($this->renderedOnce[$id]);
+    }
+
+    public function markAsRenderedOnce(string $id): void
+    {
+        $this->renderedOnce[$id] = true;
+    }
+
+    // -------------------------------------------------------------------------
+    // Fragments
+    // -------------------------------------------------------------------------
+
+    public function startFragment(string $name): void
+    {
+        if (ob_start()) {
+            $this->fragmentStack[] = $name;
+        }
+    }
+
+    public function stopFragment(): void
+    {
+        $content = ob_get_clean();
+        $name = array_pop($this->fragmentStack);
+        $this->fragments[$name] = $content;
+        echo $content;
+    }
+
+    public function getFragment(string $name): ?string
+    {
+        return $this->fragments[$name] ?? null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Custom Directives
+    // -------------------------------------------------------------------------
+
+    public function directive(string $name, callable $handler): void
+    {
+        $this->compiler->directive($name, $handler);
     }
 }

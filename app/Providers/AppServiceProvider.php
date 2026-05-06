@@ -30,5 +30,15 @@ class AppServiceProvider extends ServiceProvider
         if (file_exists($routesPath)) {
             require $routesPath;
         }
+
+        // View Composer Demo
+        view()->composer('welcome', function ($view) {
+            $view->with('composer_message', 'This message was injected by a View Composer! 🎻');
+        });
+
+        // Custom Directive Demo
+        view()->directive('upper', function ($expression) {
+            return "<?php echo strtoupper($expression); ?>";
+        });
     }
 }

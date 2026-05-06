@@ -28,8 +28,19 @@ class View
         return $this;
     }
 
+    public function getName(): string
+    {
+        return $this->view;
+    }
+
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
     public function render(): string
     {
+        $this->factory->callComposers($this);
         return $this->factory->render($this->view, $this->data);
     }
 

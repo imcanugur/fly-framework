@@ -21,5 +21,11 @@ class ViewServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // View engine is ready
+        $this->app->make('view')->share('errors', new class {
+            public function has($key) { return false; }
+            public function first($key) { return null; }
+        });
+
+        $this->app->make('view')->share('attributes', new ComponentAttributeBag());
     }
 }
