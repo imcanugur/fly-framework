@@ -3,6 +3,10 @@
 @section('title', 'Welcome to Fly')
 
 @section('content')
+    @blueprint([
+        'features' => 'array',
+        'isCool' => 'bool'
+    ])
     <div @class(['welcome-container', 'is-cool' => $isCool])>
         <h2>@upper($message)</h2>
         <p class="composer-info">{{ $composer_message }}</p>
