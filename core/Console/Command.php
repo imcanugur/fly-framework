@@ -37,8 +37,6 @@ abstract class Command
         }
     }
 
-
-
     /**
      * Execute the console command.
      */

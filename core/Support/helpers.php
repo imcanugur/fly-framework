@@ -53,3 +53,51 @@ if (!function_exists('database_path')) {
         return $app->basePath('database' . ($path ? '/' . ltrim($path, '/') : ''));
     }
 }
+
+if (!function_exists('view')) {
+    /**
+     * Get the evaluated view contents for the given view.
+     */
+    function view(string $view = null, array $data = []): \Fly\View\Factory|\Fly\View\View
+    {
+        $factory = \Fly\Container\Container::getInstance()->make('view');
+
+        if (func_num_args() === 0) {
+            return $factory;
+        }
+
+        return $factory->make($view, $data);
+    }
+}
+if (!function_exists('csrf_token')) {
+    /**
+     * Get the CSRF token value.
+     */
+    function csrf_token(): string
+    {
+        return 'fly-mock-token-' . bin2hex(random_bytes(16));
+    }
+}
+
+if (!function_exists('dd')) {
+    /**
+     * Die and Dump.
+     */
+    function dd(...$vars): void
+    {
+        foreach ($vars as $v) {
+            var_dump($v);
+        }
+        die(1);
+    }
+}
+
+if (!function_exists('fly')) {
+    /**
+     * Fly Framework Branding Helper
+     */
+    function fly(): string
+    {
+        return '🚀 Fly Framework';
+    }
+}
