@@ -31,4 +31,19 @@ class MakeMigrationCommand extends GeneratorCommand
 
         return $this->app->basePath('database/migrations/' . $fileName);
     }
+
+    protected function buildClass(string $name): string
+    {
+        $stub = parent::buildClass($name);
+        $snakeName = \Fly\Support\Str::snake($name);
+        
+        // Extract table name: create_users_table → users
+        if (preg_match('/^create_(.+?)(?:_table)?$/', $snakeName, $m)) {
+            $table = $m[1];
+        } else {
+            $table = $snakeName;
+        }
+        
+        return str_replace('{{ table }}', $table, $stub);
+    }
 }

@@ -41,9 +41,7 @@ class MigrateCommand extends Command
         $files = glob("{$migrationsDir}/*.php");
         sort($files);
 
-        $batchQuery = DB::table('migrations')->select(['batch'])->limit(1);
-        $batchQuery->columns = ['MAX(batch) as max_batch']; // Hack for raw select
-        $batchResult = $batchQuery->first();
+        $batchResult = DB::connection()->selectOne("SELECT MAX(batch) as max_batch FROM migrations");
         $batchNumber = ((int) ($batchResult->max_batch ?? 0)) + 1;
         $migrated = false;
 
@@ -56,15 +54,12 @@ class MigrateCommand extends Command
 
             $this->warning("Migrating: {$fileName}");
 
-            require_once $file;
-            $class = $this->resolveMigrationClass($file);
+            $instance = require $file;
 
-            if (!class_exists($class)) {
-                $this->error("Migration class {$class} not found in file {$fileName}");
+            if (!is_object($instance)) {
+                $this->error("Migration file {$fileName} did not return an instance.");
                 continue;
             }
-
-            $instance = new $class;
 
             if (method_exists($instance, 'up')) {
                 $instance->up();
