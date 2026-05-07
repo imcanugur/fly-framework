@@ -92,7 +92,13 @@
 </head>
 <body>
     <header>
-        <div class="logo">FLY <span>FRAMEWORK</span></div>
+        <div class="logo">
+            FLY <span>FRAMEWORK</span>
+            <div style="margin-left: auto; display: flex; gap: 16px;">
+                <a href="https://github.com/imcanugur/fly-framework" target="_blank" style="color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 700;">GITHUB</a>
+                <a href="https://github.com/imcanugur/fly-framework" target="_blank" style="color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 700;">DOCS</a>
+            </div>
+        </div>
         <div class="exception"><?= $exceptionName ?></div>
         <h1><?= $message ?></h1>
         <div class="location"><?= $file ?> : <?= $line ?></div>
