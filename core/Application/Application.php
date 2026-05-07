@@ -65,6 +65,9 @@ class Application extends Container
      */
     public function bootstrap(): void
     {
+        // 0. Register Exception Handler
+        (new \Fly\Exceptions\Handler())->register();
+
         if ($this->bootstrapped) {
             return;
         }

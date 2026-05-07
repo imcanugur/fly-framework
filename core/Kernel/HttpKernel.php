@@ -35,22 +35,38 @@ class HttpKernel
      */
     public function handle(): void
     {
-        // 1. Capture
-        $request = Request::capture();
-        $this->app->instance(Request::class, $request);
-        $this->app->instance('request', $request);
+        try {
+            // 1. Capture
+            $request = Request::capture();
+            $this->app->instance(Request::class, $request);
+            $this->app->instance('request', $request);
 
-        // 2. Boot
-        $this->app->boot();
+            // 2. Boot
+            $this->app->boot();
 
-        // 3. Dispatch through global middleware and router
-        $response = $this->sendRequestThroughRouter($request);
+            // 3. Dispatch through global middleware and router
+            $response = $this->sendRequestThroughRouter($request);
+        } catch (\Throwable $e) {
+            $response = $this->reportAndRender($request ?? Request::capture(), $e);
+        }
 
         // 4. Emit
         $response->send();
 
         // 5. Terminate
-        $this->terminate($request, $response);
+        $this->terminate($request ?? Request::capture(), $response);
+    }
+
+    /**
+     * Report and render the exception.
+     */
+    protected function reportAndRender(Request $request, \Throwable $e): Response
+    {
+        $handler = $this->app->make(\Fly\Exceptions\Handler::class);
+        
+        $handler->report($e);
+        
+        return $handler->render($request, $e);
     }
 
     /**

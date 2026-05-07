@@ -417,7 +417,7 @@ class Router
      */
     protected function createNotFoundResponse(string $path): Response
     {
-        return Response::make("404 Not Found: {$path}", 404);
+        throw new \Fly\Exceptions\NotFoundException("The requested path [{$path}] could not be found on this server.");
     }
 
     /**
@@ -429,10 +429,10 @@ class Router
     {
         $allow = implode(', ', $allowedMethods);
 
-        return Response::make(
-            "405 Method Not Allowed: {$path}. Allowed: {$allow}",
-            405,
-            ['Allow' => $allow],
+        throw new \Fly\Exceptions\MethodNotAllowedException(
+            "The [{$path}] path does not support the current HTTP method. Supported methods: [{$allow}].",
+            null,
+            ['Allow' => $allow]
         );
     }
 }

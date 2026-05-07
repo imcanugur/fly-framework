@@ -85,9 +85,37 @@ if (!function_exists('dd')) {
      */
     function dd(...$vars): void
     {
-        foreach ($vars as $v) {
-            var_dump($v);
+        if (PHP_SAPI === 'cli') {
+            foreach ($vars as $v) {
+                var_dump($v);
+            }
+            die(1);
         }
+
+        // Web Dump
+        echo '<!DOCTYPE html><html lang="en"><head><title>Fly Dump</title>';
+        echo '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">';
+        echo '<style>
+            body { background: #ffffff; color: #0f172a; font-family: "Outfit", sans-serif; padding: 64px; }
+            .dark-theme body { background: #0f172a; color: #f8fafc; }
+            .header { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 16px; margin-bottom: 40px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px; }
+            .dark-theme .header { border-bottom-color: #334155; }
+            pre { background: #f8fafc; border: 1px solid #f1f5f9; padding: 32px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 14px; overflow-x: auto; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+            .dark-theme pre { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+            .tag { background: #4f46e5; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+        </style></head><body>';
+        echo '<div class="header"><span class="tag">DUMP</span> FLY FRAMEWORK</div>';
+        
+        foreach ($vars as $v) {
+            echo '<pre>';
+            ob_start();
+            var_dump($v);
+            $dump = ob_get_clean();
+            echo htmlspecialchars($dump);
+            echo '</pre>';
+        }
+        
+        echo '</body></html>';
         die(1);
     }
 }
