@@ -38,6 +38,7 @@ return [
     'providers' => [
         \Fly\Database\DatabaseServiceProvider::class,
         \Fly\View\ViewServiceProvider::class,
+        \App\Providers\EventServiceProvider::class,
         \App\Providers\AppServiceProvider::class,
     ],
 

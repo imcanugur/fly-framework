@@ -92,6 +92,30 @@ if (!function_exists('dd')) {
     }
 }
 
+if (!function_exists('app')) {
+    /**
+     * Get the available container instance.
+     */
+    function app(string $abstract = null, array $parameters = []): mixed
+    {
+        if (is_null($abstract)) {
+            return \Fly\Container\Container::getInstance();
+        }
+
+        return \Fly\Container\Container::getInstance()->make($abstract, $parameters);
+    }
+}
+
+if (!function_exists('event')) {
+    /**
+     * Dispatch an event and call the listeners.
+     */
+    function event(string|object $event, mixed $payload = []): array
+    {
+        return app('events')->dispatch($event, $payload);
+    }
+}
+
 if (!function_exists('fly')) {
     /**
      * Fly Framework Branding Helper

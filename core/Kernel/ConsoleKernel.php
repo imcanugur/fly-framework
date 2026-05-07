@@ -25,6 +25,8 @@ class ConsoleKernel
         'make:model'      => \Fly\Console\Commands\MakeModelCommand::class,
         'make:migration'  => \Fly\Console\Commands\MakeMigrationCommand::class,
         'make:provider'   => \Fly\Console\Commands\MakeProviderCommand::class,
+        'make:event'      => \Fly\Console\Commands\MakeEventCommand::class,
+        'make:listener'   => \Fly\Console\Commands\MakeListenerCommand::class,
         'make:seeder'     => \Fly\Console\Commands\MakeSeederCommand::class,
         'migrate'         => \Fly\Console\Commands\MigrateCommand::class,
         'migrate:rollback' => \Fly\Console\Commands\MigrateRollbackCommand::class,

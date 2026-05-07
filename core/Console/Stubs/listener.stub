@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Fly\Events\ListenerInterface;
+
+class {{ class }} implements ListenerInterface
+{
+    /**
+     * Handle the event.
+     *
+     * @param mixed $event
+     * @param string $eventName
+     * @return void
+     */
+    public function handle(mixed $event, string $eventName): void
+    {
+        //
+    }
+}
