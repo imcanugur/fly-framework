@@ -149,6 +149,15 @@ class Handler
             'config' => config()->all(),
             'execution_time' => number_format((microtime(true) - FLY_START) * 1000, 2),
             'memory_usage' => number_format(memory_get_peak_usage(true) / 1024 / 1024, 2),
+            'extensions' => get_loaded_extensions(),
+            'php_ini' => [
+                'display_errors' => ini_get('display_errors'),
+                'memory_limit' => ini_get('memory_limit'),
+                'max_execution_time' => ini_get('max_execution_time'),
+                'upload_max_filesize' => ini_get('upload_max_filesize'),
+                'post_max_size' => ini_get('post_max_size'),
+                'opcache.enable' => ini_get('opcache.enable'),
+            ],
         ];
     }
 
