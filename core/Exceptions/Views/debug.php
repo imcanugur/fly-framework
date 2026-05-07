@@ -13,12 +13,24 @@
             --muted: #64748b;
             --border: #f1f5f9;
             --accent: #4f46e5;
-            --danger: #ef4444;
+            --code-bg: #fafafa;
+            --hover: #fdfdff;
         }
+        
+        .dark-mode {
+            --bg: #0f172a;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --border: #1e293b;
+            --accent: #818cf8;
+            --code-bg: #1e293b;
+            --hover: #1e293b;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; line-height: 1.6; padding: 80px 120px;
-            opacity: 0; animation: fadeIn 0.6s ease forwards;
+            opacity: 0; animation: fadeIn 0.6s ease forwards; transition: background 0.3s, color 0.3s;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -45,18 +57,18 @@
         h2 { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 32px; display: flex; align-items: center; gap: 12px; }
         h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-        .code-box { background: #fafafa; border-radius: 24px; padding: 48px; font-family: 'JetBrains Mono', monospace; font-size: 15px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.02); overflow-x: auto; }
+        .code-box { background: var(--code-bg); border-radius: 24px; padding: 48px; font-family: 'JetBrains Mono', monospace; font-size: 15px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.02); overflow-x: auto; }
         .line { display: grid; grid-template-columns: 50px 1fr; gap: 24px; opacity: 0.3; transition: all 0.2s; }
         .line.active { opacity: 1; color: var(--accent); font-weight: 600; border-left: 3px solid var(--accent); padding-left: 10px; margin-left: -13px; }
         .ln { text-align: right; color: var(--muted); user-select: none; }
 
         .search-box { margin-bottom: 24px; position: relative; }
-        .search-box input { width: 100%; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border); background: #fafafa; outline: none; font-family: 'Outfit', sans-serif; transition: all 0.2s; }
+        .search-box input { width: 100%; padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--code-bg); color: var(--text); outline: none; font-family: 'Outfit', sans-serif; transition: all 0.2s; }
         .search-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.05); }
 
         .trace-list { display: grid; gap: 8px; }
         .trace-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-radius: 16px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
-        .trace-item:hover { background: #fdfdff; border-color: var(--accent); transform: translateX(4px); }
+        .trace-item:hover { background: var(--hover); border-color: var(--accent); transform: translateX(4px); }
         .trace-item.hidden { display: none; }
         .trace-call { font-weight: 700; font-size: 15px; }
         .trace-file { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
@@ -69,15 +81,15 @@
         @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
         .data-table { width: 100%; border-collapse: collapse; }
-        .data-table tr:hover { background: #fafafa; }
+        .data-table tr:hover { background: var(--hover); }
         .data-table th { text-align: left; padding: 16px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); width: 250px; }
         .data-table td { padding: 16px; font-size: 14px; border-bottom: 1px solid var(--border); word-break: break-all; }
 
-        pre { background: #fafafa; padding: 32px; border-radius: 16px; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; }
+        pre { background: var(--code-bg); padding: 32px; border-radius: 16px; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; color: var(--text); }
 
-        .floating-tools { position: fixed; bottom: 40px; right: 40px; display: flex; flex-direction: column; gap: 12px; }
-        .fab { background: var(--text); color: white; width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .fab:hover { transform: scale(1.1) translateY(-4px); background: var(--accent); }
+        .floating-tools { position: absolute; bottom: 40px; right: 40px; display: flex; flex-direction: column; gap: 12px; }
+        .fab { background: var(--text); color: var(--bg); width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .fab:hover { transform: scale(1.1) translateY(-4px); background: var(--accent); color: #fff; }
 
         .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; background: var(--border); color: var(--muted); font-weight: 700; }
     </style>
@@ -198,11 +210,14 @@
     <div class="floating-tools">
         <div class="fab" onclick="copyError()" title="Copy Details"><i data-lucide="copy" size="20"></i></div>
         <div class="fab" onclick="searchError()" title="Search Google"><i data-lucide="search" size="20"></i></div>
-        <div class="fab" onclick="document.body.style.filter = document.body.style.filter ? '' : 'invert(1) hue-rotate(180deg)'" title="Dark Mode"><i data-lucide="sun-moon" size="20"></i></div>
+        <div class="fab" onclick="toggleTheme()" title="Toggle Theme"><i data-lucide="sun-moon" size="20"></i></div>
     </div>
 
     <script>
         lucide.createIcons();
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
         function switchTab(id, el) {
             document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));

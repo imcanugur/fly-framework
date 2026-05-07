@@ -94,17 +94,19 @@ if (!function_exists('dd')) {
 
         // Web Dump
         echo '<!DOCTYPE html><html lang="en"><head><title>Fly Dump</title>';
-        echo '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">';
+        echo '<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">';
+        echo '<script src="https://unpkg.com/lucide@latest"></script>';
         echo '<style>
-            body { background: #ffffff; color: #0f172a; font-family: "Outfit", sans-serif; padding: 64px; }
-            .dark-theme body { background: #0f172a; color: #f8fafc; }
-            .header { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 16px; margin-bottom: 40px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px; }
-            .dark-theme .header { border-bottom-color: #334155; }
-            pre { background: #f8fafc; border: 1px solid #f1f5f9; padding: 32px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 14px; overflow-x: auto; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-            .dark-theme pre { background: #1e293b; border-color: #334155; color: #e2e8f0; }
-            .tag { background: #4f46e5; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+            :root { --bg: #ffffff; --text: #0f172a; --muted: #64748b; --border: #f1f5f9; --accent: #4f46e5; --code-bg: #fafafa; }
+            .dark-mode { --bg: #0f172a; --text: #f8fafc; --muted: #94a3b8; --border: #1e293b; --accent: #818cf8; --code-bg: #1e293b; }
+            body { background: var(--bg); color: var(--text); font-family: "Outfit", sans-serif; padding: 80px 120px; transition: all 0.3s; }
+            .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 60px; border-bottom: 1px solid var(--border); padding-bottom: 24px; }
+            .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--muted); letter-spacing: 0.1em; }
+            .logo span { color: var(--accent); }
+            pre { background: var(--code-bg); border: 1px solid var(--border); padding: 40px; border-radius: 24px; font-family: "JetBrains Mono", monospace; font-size: 15px; overflow-x: auto; margin-bottom: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); color: var(--text); }
+            .fab { position: fixed; bottom: 40px; right: 40px; background: var(--text); color: var(--bg); width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         </style></head><body>';
-        echo '<div class="header"><span class="tag">DUMP</span> FLY FRAMEWORK</div>';
+        echo '<div class="header"><div class="logo">FLY <span>DUMP</span></div><div style="font-size: 11px; font-weight: 800; color: var(--muted); letter-spacing: 0.1em;">' . date('H:i:s') . '</div></div>';
         
         foreach ($vars as $v) {
             echo '<pre>';
@@ -115,7 +117,8 @@ if (!function_exists('dd')) {
             echo '</pre>';
         }
         
-        echo '</body></html>';
+        echo '<div class="fab" onclick="document.body.classList.toggle(\'dark-mode\')"><i data-lucide="sun-moon"></i></div>';
+        echo '<script>lucide.createIcons();</script></body></html>';
         die(1);
     }
 }
