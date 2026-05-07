@@ -147,6 +147,8 @@ class Handler
             'env' => $_ENV,
             'serverVars' => $_SERVER,
             'config' => config()->all(),
+            'execution_time' => number_format((microtime(true) - FLY_START) * 1000, 2),
+            'memory_usage' => number_format(memory_get_peak_usage(true) / 1024 / 1024, 2),
         ];
     }
 

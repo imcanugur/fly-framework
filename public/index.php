@@ -1,6 +1,7 @@
 <?php
-
 declare(strict_types=1);
+
+define('FLY_START', microtime(true));
 
 /**
  * Fly Framework - HTTP Entry Point
