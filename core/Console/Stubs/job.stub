@@ -6,10 +6,11 @@ namespace {{ namespace }};
 
 use Fly\Queue\Dispatchable;
 use Fly\Queue\InteractsWithQueue;
+use Fly\Queue\Concerns\SerializesModels;
 
 class {{ class }}
 {
-    use Dispatchable, InteractsWithQueue;
+    use Dispatchable, InteractsWithQueue, SerializesModels;
 
     /**
      * Create a new job instance.

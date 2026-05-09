@@ -78,6 +78,10 @@ class DatabaseJob implements JobInterface
                 if (method_exists($job, 'handle')) {
                     $this->app->resolveMethod($job, 'handle');
                 }
+
+                if (method_exists($job, 'dispatchNextJobInChain')) {
+                    $job->dispatchNextJobInChain();
+                }
             });
     }
 

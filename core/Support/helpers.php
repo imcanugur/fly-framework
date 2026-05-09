@@ -151,8 +151,12 @@ if (!function_exists('dispatch')) {
     /**
      * Dispatch a job to the queue.
      */
-    function dispatch(object $job): mixed
+    function dispatch(object|callable $job): mixed
     {
+        if ($job instanceof \Closure) {
+            $job = new \Fly\Queue\Jobs\ClosureJob($job);
+        }
+
         return app('queue')->push($job);
     }
 }

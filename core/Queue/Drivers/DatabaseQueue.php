@@ -174,7 +174,16 @@ class DatabaseQueue implements QueueInterface
             'job' => get_class($job),
             'data' => serialize($job),
             'uuid' => (string) Str::uuid(),
+            'unique_key' => ($job instanceof ShouldBeUnique) ? $this->getUniqueKey($job) : null,
         ]);
+    }
+
+    /**
+     * Get the unique key for the job.
+     */
+    protected function getUniqueKey(object $job): string
+    {
+        return md5(get_class($job) . $job->uniqueId());
     }
 
     /**
@@ -187,9 +196,23 @@ class DatabaseQueue implements QueueInterface
      */
     protected function pushToDatabase(?string $queue, string $payload, int $delay = 0)
     {
+        $decoded = json_decode($payload, true);
+        
+        if ($decoded['unique_key']) {
+            $exists = $this->database->table($this->table)
+                ->where('unique_key', $decoded['unique_key'])
+                ->whereNull('reserved_at')
+                ->exists();
+
+            if ($exists) {
+                return null;
+            }
+        }
+
         return $this->database->table($this->table)->insert([
             'queue' => $queue ?: $this->default,
             'payload' => $payload,
+            'unique_key' => $decoded['unique_key'] ?? null,
             'attempts' => 0,
             'reserved_at' => null,
             'available_at' => time() + $delay,
