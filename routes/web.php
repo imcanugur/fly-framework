@@ -50,7 +50,7 @@ Route::group(['prefix' => '/api'], function () {
 
 // HTML response
 Route::get('/welcome', function () {
-    return Response::html(view('welcome', [
+    return Responxse::html(view('welcome', [
         'message'  => 'Welcome to Fly Framework!',
         'features' => ['MVC', 'Routing', 'Middleware', 'Template Engine'],
         'isCool'   => true
@@ -69,6 +69,12 @@ Route::get('/config-test', function () {
         'app_env'  => env('APP_ENV'),
         'debug'    => config('app.debug'),
     ]);
+});
+
+// Error Test
+Route::get('/error-test', function () {
+
+    dd("Hello World");
 });
 
 // Database Demo

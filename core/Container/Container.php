@@ -37,6 +37,13 @@ class Container
     protected array $instances = [];
 
     /**
+     * Registered aliases.
+     *
+     * @var array<string, string>
+     */
+    protected array $aliases = [];
+
+    /**
      * Set the global container instance.
      */
     public static function setInstance(?self $container): void
@@ -91,6 +98,8 @@ class Container
      */
     public function make(string $abstract): mixed
     {
+        $abstract = $this->getAlias($abstract);
+
         // Return cached singleton instance if available
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
@@ -110,6 +119,22 @@ class Container
 
         // Attempt automatic resolution via reflection
         return $this->resolve($abstract);
+    }
+
+    /**
+     * Register an alias for an existing binding.
+     */
+    public function alias(string $abstract, string $alias): void
+    {
+        $this->aliases[$alias] = $abstract;
+    }
+
+    /**
+     * Get the abstract name for a given alias.
+     */
+    protected function getAlias(string $abstract): string
+    {
+        return isset($this->aliases[$abstract]) ? $this->getAlias($this->aliases[$abstract]) : $abstract;
     }
 
     /**

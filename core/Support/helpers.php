@@ -147,6 +147,16 @@ if (!function_exists('event')) {
     }
 }
 
+if (!function_exists('dispatch')) {
+    /**
+     * Dispatch a job to the queue.
+     */
+    function dispatch(object $job): mixed
+    {
+        return app('queue')->push($job);
+    }
+}
+
 if (!function_exists('fly')) {
     /**
      * Fly Framework Branding Helper

@@ -42,10 +42,17 @@ class Handler
      */
     public function handleException(\Throwable $e): void
     {
-        $request = app('request') ?? Request::capture();
+        $request = app()->has('request') ? app('request') : Request::capture();
         
         $this->report($e);
         
+        if (PHP_SAPI === 'cli') {
+            echo "\033[31mException: " . $e->getMessage() . "\033[0m\n";
+            echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
+            echo $e->getTraceAsString() . "\n";
+            return;
+        }
+
         $this->render($request, $e)->send();
     }
 
