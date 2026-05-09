@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace {{ namespace }};
 
+use Fly\Queue\Dispatchable;
+use Fly\Queue\InteractsWithQueue;
+
 class {{ class }}
 {
+    use Dispatchable, InteractsWithQueue;
+
     /**
      * Create a new job instance.
      *
@@ -24,5 +29,15 @@ class {{ class }}
     public function handle(): void
     {
         //
+    }
+
+    /**
+     * Get the middleware the job should pass through.
+     *
+     * @return array
+     */
+    public function middleware(): array
+    {
+        return [];
     }
 }

@@ -62,12 +62,23 @@ class DatabaseJob implements JobInterface
     public function fire(): void
     {
         $payload = json_decode($this->job->payload, true);
-        
         $instance = unserialize($payload['data']);
 
-        if (method_exists($instance, 'handle')) {
-            $this->app->resolveMethod($instance, 'handle');
-        }
+        $pipeline = new \Fly\Pipeline\Pipeline($this->app);
+
+        $middleware = method_exists($instance, 'middleware') ? $instance->middleware() : [];
+
+        $pipeline->send($instance)
+            ->through($middleware)
+            ->then(function ($job) {
+                if (method_exists($job, 'setJob')) {
+                    $job->setJob($this);
+                }
+
+                if (method_exists($job, 'handle')) {
+                    $this->app->resolveMethod($job, 'handle');
+                }
+            });
     }
 
     /**
