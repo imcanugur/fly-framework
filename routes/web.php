@@ -50,7 +50,7 @@ Route::group(['prefix' => '/api'], function () {
 
 // HTML response
 Route::get('/welcome', function () {
-    return Responxse::html(view('welcome', [
+    return Response::html(view('welcome', [
         'message'  => 'Welcome to Fly Framework!',
         'features' => ['MVC', 'Routing', 'Middleware', 'Template Engine'],
         'isCool'   => true
