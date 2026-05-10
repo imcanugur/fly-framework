@@ -97,6 +97,27 @@ class CacheManager
     }
 
     /**
+     * Create an instance of the Redis cache driver.
+     */
+    protected function createRedisDriver(array $config): RedisStore
+    {
+        // For now, we assume Redis is available via a factory or direct instance
+        // In a real framework, we'd have a RedisManager
+        $redis = new \Redis();
+        $redis->connect($config['host'] ?? '127.0.0.1', (int) ($config['port'] ?? 6379));
+        
+        return new RedisStore($redis, $this->getDefaultPrefix());
+    }
+
+    /**
+     * Get the RateLimiter instance.
+     */
+    public function rateLimiter(): RateLimiter
+    {
+        return new RateLimiter($this);
+    }
+
+    /**
      * Get the default cache driver name.
      */
     public function getDefaultDriver(): string

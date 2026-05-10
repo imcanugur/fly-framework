@@ -38,9 +38,11 @@ class Repository implements CacheRepositoryInterface
         $value = $this->store->get($key);
 
         if (is_null($value)) {
+            $this->fireEvent(new Events\CacheMissed($key));
             return $default instanceof Closure ? $default() : $default;
         }
 
+        $this->fireEvent(new Events\CacheHit($key, $value));
         return $value;
     }
 
@@ -69,7 +71,13 @@ class Repository implements CacheRepositoryInterface
             return $this->forget($key);
         }
 
-        return $this->store->put($key, $value, $seconds);
+        $result = $this->store->put($key, $value, $seconds);
+
+        if ($result) {
+            $this->fireEvent(new Events\KeyWritten($key, $value, $seconds));
+        }
+
+        return $result;
     }
 
     /**
@@ -89,7 +97,13 @@ class Repository implements CacheRepositoryInterface
      */
     public function forever(string $key, mixed $value): bool
     {
-        return $this->store->forever($key, $value);
+        $result = $this->store->forever($key, $value);
+
+        if ($result) {
+            $this->fireEvent(new Events\KeyWritten($key, $value));
+        }
+
+        return $result;
     }
 
     /**
@@ -129,7 +143,23 @@ class Repository implements CacheRepositoryInterface
      */
     public function forget(string $key): bool
     {
-        return $this->store->forget($key);
+        $result = $this->store->forget($key);
+
+        if ($result) {
+            $this->fireEvent(new Events\KeyForgotten($key));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Fire a cache event.
+     */
+    protected function fireEvent(object $event): void
+    {
+        if (function_exists('app') && app()->has('events')) {
+            app('events')->dispatch($event);
+        }
     }
 
     /**
