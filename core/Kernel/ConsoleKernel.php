@@ -35,6 +35,7 @@ class ConsoleKernel
         'migrate:fresh'   => \Fly\Console\Commands\MigrateFreshCommand::class,
         'db:seed'         => \Fly\Console\Commands\DbSeedCommand::class,
         'queue:work'      => \Fly\Console\Commands\QueueWorkCommand::class,
+        'cache:clear'     => \Fly\Console\Commands\CacheClearCommand::class,
         'serve'           => \Fly\Console\Commands\ServeCommand::class,
         'route:list'      => \Fly\Console\Commands\RouteListCommand::class,
         'view:clear'      => \Fly\Console\Commands\ViewClearCommand::class,

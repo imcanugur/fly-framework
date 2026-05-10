@@ -40,6 +40,7 @@ return [
         \Fly\View\ViewServiceProvider::class,
         \Fly\Events\EventServiceProvider::class,
         \Fly\Queue\QueueServiceProvider::class,
+        \Fly\Cache\CacheServiceProvider::class,
         \App\Providers\EventServiceProvider::class,
         \App\Providers\AppServiceProvider::class,
     ],

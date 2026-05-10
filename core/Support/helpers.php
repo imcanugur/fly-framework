@@ -147,6 +147,29 @@ if (!function_exists('event')) {
     }
 }
 
+if (!function_exists('cache')) {
+    /**
+     * Get / set the specified cache value.
+     */
+    function cache(string|array|null $key = null, mixed $default = null): mixed
+    {
+        $manager = app('cache');
+
+        if (is_null($key)) {
+            return $manager;
+        }
+
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                $manager->put($k, $v);
+            }
+            return null;
+        }
+
+        return $manager->get($key, $default);
+    }
+}
+
 if (!function_exists('dispatch')) {
     /**
      * Dispatch a job to the queue.
