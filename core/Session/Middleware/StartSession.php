@@ -56,6 +56,10 @@ class StartSession
 
         $session->start();
 
+        if (!$session->has('_token')) {
+            $session->put('_token', \Fly\Support\Str::random(40));
+        }
+
         return $session;
     }
 

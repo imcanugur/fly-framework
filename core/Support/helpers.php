@@ -221,6 +221,28 @@ if (!function_exists('session')) {
     }
 }
 
+if (!function_exists('csrf_token')) {
+    /**
+     * Get the CSRF token value.
+     */
+    function csrf_token(): ?string
+    {
+        $session = app('session');
+
+        return $session->get('_token');
+    }
+}
+
+if (!function_exists('csrf_field')) {
+    /**
+     * Generate a CSRF HTML input field.
+     */
+    function csrf_field(): string
+    {
+        return '<input type="hidden" name="_token" value="' . csrf_token() . '">';
+    }
+}
+
 if (!function_exists('cache')) {
     /**
      * Get / set the specified cache value.

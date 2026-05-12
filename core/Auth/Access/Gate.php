@@ -32,6 +32,16 @@ class Gate
     protected array $policies = [];
 
     /**
+     * All of the before callbacks.
+     */
+    protected array $beforeCallbacks = [];
+
+    /**
+     * All of the after callbacks.
+     */
+    protected array $afterCallbacks = [];
+
+    /**
      * Create a new gate instance.
      */
     public function __construct(Application $app, callable $userResolver)
@@ -79,17 +89,56 @@ class Gate
     }
 
     /**
-     * Determine if the given ability should be granted for the current user.
+     * Define a "before" callback.
      */
-    public function check(string $ability, mixed $arguments = []): bool
+    public function before(callable $callback): static
     {
-        return $this->inspect($ability, $arguments);
+        $this->beforeCallbacks[] = $callback;
+        return $this;
+    }
+
+    /**
+     * Define an "after" callback.
+     */
+    public function after(callable $callback): static
+    {
+        $this->afterCallbacks[] = $callback;
+        return $this;
     }
 
     /**
      * Inspect the user for the given ability.
      */
-    public function inspect(string $ability, mixed $arguments = []): bool
+    public function inspect(string $ability, mixed $arguments = []): Response
+    {
+        $user = $this->resolveUser();
+
+        $arguments = (array) $arguments;
+
+        // Run before hooks
+        foreach ($this->beforeCallbacks as $callback) {
+            if (!is_null($result = $callback($user, $ability, $arguments))) {
+                return $this->allowIf($result);
+            }
+        }
+
+        // Run primary check
+        $result = $this->raw($ability, $arguments);
+
+        // Run after hooks
+        foreach ($this->afterCallbacks as $callback) {
+            if (!is_null($afterResult = $callback($user, $ability, $arguments, $result))) {
+                $result = $afterResult;
+            }
+        }
+
+        return $this->allowIf($result);
+    }
+
+    /**
+     * Get the raw result for the given ability.
+     */
+    protected function raw(string $ability, array $arguments): mixed
     {
         $user = $this->resolveUser();
 
@@ -97,13 +146,31 @@ class Gate
             return false;
         }
 
-        $arguments = (array) $arguments;
-
         if (isset($this->abilities[$ability])) {
             return $this->callAuthCallback($user, $ability, $arguments);
         }
 
         return $this->checkPolicy($user, $ability, $arguments);
+    }
+
+    /**
+     * Convert a result to an Access Response.
+     */
+    protected function allowIf(mixed $result): Response
+    {
+        if ($result instanceof Response) {
+            return $result;
+        }
+
+        return $result ? Response::allow() : Response::deny();
+    }
+
+    /**
+     * Determine if the given ability should be granted for the current user.
+     */
+    public function check(string $ability, mixed $arguments = []): bool
+    {
+        return $this->inspect($ability, $arguments)->allowed();
     }
 
     /**
