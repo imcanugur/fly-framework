@@ -41,6 +41,8 @@ return [
         \Fly\Events\EventServiceProvider::class,
         \Fly\Queue\QueueServiceProvider::class,
         \Fly\Cache\CacheServiceProvider::class,
+        \Fly\Session\SessionServiceProvider::class,
+        \Fly\Auth\AuthServiceProvider::class,
         \App\Providers\EventServiceProvider::class,
         \App\Providers\AppServiceProvider::class,
     ],

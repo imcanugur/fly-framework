@@ -147,6 +147,80 @@ if (!function_exists('event')) {
     }
 }
 
+if (!function_exists('auth')) {
+    /**
+     * Get the available auth instance.
+     */
+    function auth(?string $guard = null): \Fly\Auth\AuthManager|\Fly\Auth\GuardInterface
+    {
+        if (is_null($guard)) {
+            return app('auth');
+        }
+
+        return app('auth')->guard($guard);
+    }
+}
+
+if (!function_exists('user')) {
+    /**
+     * Get the currently authenticated user.
+     */
+    function user(): ?\Fly\Auth\AuthenticatableInterface
+    {
+        return auth()->user();
+    }
+}
+
+if (!function_exists('check')) {
+    /**
+     * Determine if the current user is authenticated.
+     */
+    function check(): bool
+    {
+        return auth()->check();
+    }
+}
+
+if (!function_exists('can')) {
+    /**
+     * Determine if the current user has a given ability.
+     */
+    function can(string $ability, mixed $arguments = []): bool
+    {
+        return app('gate')->check($ability, $arguments);
+    }
+}
+
+if (!function_exists('cannot')) {
+    /**
+     * Determine if the current user does not have a given ability.
+     */
+    function cannot(string $ability, mixed $arguments = []): bool
+    {
+        return !can($ability, $arguments);
+    }
+}
+
+if (!function_exists('session')) {
+    /**
+     * Get / set the specified session value.
+     */
+    function session(string|array|null $key = null, mixed $default = null): mixed
+    {
+        $manager = app('session');
+
+        if (is_null($key)) {
+            return $manager;
+        }
+
+        if (is_array($key)) {
+            return $manager->put($key);
+        }
+
+        return $manager->get($key, $default);
+    }
+}
+
 if (!function_exists('cache')) {
     /**
      * Get / set the specified cache value.

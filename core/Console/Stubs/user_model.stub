@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Fly\Database\ORM\Model;
+use Fly\Auth\AuthenticatableInterface;
+use Fly\Auth\Authenticatable;
+use Fly\Auth\Access\Authorizable;
+
+class User extends Model implements AuthenticatableInterface
+{
+    use Authenticatable, Authorizable;
+
+    /**
+     * The table associated with the model.
+     */
+    protected string $table = 'users';
+
+    /**
+     * The attributes that are mass assignable.
+     */
+    protected array $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     */
+    protected array $hidden = [
+        'password', 'remember_token',
+    ];
+}

@@ -26,6 +26,11 @@ class Request
     protected ?string $rawBody = null;
 
     /**
+     * The session store instance.
+     */
+    protected ?\Fly\Session\Store $session = null;
+
+    /**
      * @param array<string, string>   $server  Parsed $_SERVER
      * @param array<string, mixed>    $query   Parsed $_GET
      * @param array<string, mixed>    $post    Parsed $_POST
@@ -415,6 +420,30 @@ class Request
     public function hasCookie(string $key): bool
     {
         return isset($this->cookies[$key]);
+    }
+
+    // ----------------------------------------------------------------
+    // Session
+    // ----------------------------------------------------------------
+
+    /**
+     * Get the session associated with the request.
+     */
+    public function session(): \Fly\Session\Store
+    {
+        if (!$this->session) {
+            throw new \RuntimeException('Session has not been started.');
+        }
+
+        return $this->session;
+    }
+
+    /**
+     * Set the session associated with the request.
+     */
+    public function setSession(\Fly\Session\Store $session): void
+    {
+        $this->session = $session;
     }
 
     // ----------------------------------------------------------------
